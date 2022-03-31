@@ -206,6 +206,10 @@ Read the Schema docs linked above before designing.
     ##### END SAVE LOGIC #####
     #########################>
 
+    <##################
+    ##### GETTERS #####
+    ##################>
+
 
     <##
      # Gets an XML object starting at $node
@@ -217,6 +221,19 @@ Read the Schema docs linked above before designing.
         $xml = Select-Xml -Content $this.RootXML -XPath $XPath
         return $xml
     }
+
+
+    <##
+     # Get filename we are currently working on
+     #>
+    [string]getFilename(){
+        return $this.file.name
+    }
+
+
+    <######################
+    ##### END GETTERS #####
+    ######################>
 
 
     <##
