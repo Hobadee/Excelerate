@@ -101,7 +101,7 @@ Read the Schema docs linked above before designing.
         }
 
         $OOXML = (Join-Path $tmpPath $this::RootXMLPath)
-        Write-Debug "Loading Workbook: $OOXML"
+        Write-Debug "Loading OOXML: $OOXML"
         # Get-Content loads the content of the file
         [xml]$this.RootXML = Get-Content -LiteralPath $OOXML
 
