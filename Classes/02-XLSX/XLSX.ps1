@@ -4,6 +4,7 @@ class XLSX : OOXML {
 
     # Static Vars
     static [string]$XLSXPartType = 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet.main+xml'
+    static [string]$XLSXWorkbookXMLNS = 'http://schemas.openxmlformats.org/spreadsheetml/2006/main'
 
 
     <#######################
@@ -36,9 +37,20 @@ class XLSX : OOXML {
             $this.tmpDir.Dispose()
             throw "Not an XLSX file!"
         }
-        else{
-            return $this
+        
+        $tmpPath = $this.tmpDir.getPath()
+        $wrkbk = (Join-Path $tmpPath $this.OOXMLParts.getPartByType($this::XLSXPartType).getName())
+
+        Write-Debug "Loading XLSX Workbook: $wrkbk"
+        # Get-Content loads the content of the file
+        [xml]$this.workbook = Get-Content -LiteralPath $wrkbk
+
+        if($this.workbook.workbook.xmlns -ne $this::XLSXWorkbookXMLNS){
+            $this.tmpDir.Dispose()
+            throw "Invalid XLSX file!"
         }
+
+        return $this
     }
 
 
