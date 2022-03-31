@@ -1,4 +1,4 @@
-class Excel : IDisposable {
+class Excel2 : IDisposable {
     
     [System.IO.FileInfo]$file
     [tempDir]$tmpDir
@@ -12,10 +12,10 @@ class Excel : IDisposable {
     <##
      # CONSTRUCTORS
      ##>
-    Excel(){
+    Excel2(){
         # Nothing to do - File must be set and loaded later
     }
-    Excel([string]$filename){
+    Excel2([string]$filename){
         $this.setFilename($filename)
         $this.load()
     }
@@ -38,7 +38,7 @@ class Excel : IDisposable {
     }
 
 
-    [Excel]load(){
+    [Excel2]load(){
         if($this.loaded){
             throw "Cannot load - already loaded!"
         }
