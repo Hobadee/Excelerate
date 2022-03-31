@@ -58,7 +58,7 @@ class OldExcel : IDisposable {
      #
      # @return Excel Returns self
     #>
-    [Excel]setFilename([string]$filename){
+    [OldExcel]setFilename([string]$filename){
         $this.filename = $filename
         return $this
     }
@@ -80,7 +80,7 @@ class OldExcel : IDisposable {
      #
      # @return Excel Returns self on success (Throws error on failure)
     #>
-    [Excel]load(){
+    [OldExcel]load(){
 
         # Check if we are loaded already.  Error out if we are; We can't load twice!
         if($this.loaded){
