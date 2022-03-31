@@ -31,7 +31,8 @@ class XLSX : OOXML {
 
 
     [XLSX]load(){
-        if(([OOXML]$this).load().checkXLSX() -ne $true){
+        ([OOXML]$this).load()
+        if($this.checkXLSX() -ne $true){
             $this.tmpDir.Dispose()
             throw "Not an XLSX file!"
         }
