@@ -9,7 +9,7 @@ class OOXMLParts : System.Collections.Generic.List[PSObject]{
                 return $OOXMLPart
             }
         }
-        return null
+        return $null
     }
 
     <#
@@ -21,6 +21,6 @@ class OOXMLParts : System.Collections.Generic.List[PSObject]{
                 return $OOXMLPart
             }
         }
-        return null
+        return $null
     }
 }
