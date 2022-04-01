@@ -2,6 +2,7 @@ class XLSX : OOXML {
 
     [xml]$workbook
     [XLSXDefinedNames]$XLSXDefinedNames = [XLSXDefinedNames]::new()
+    [XLSXExternalLinks]$XLSXExternalLinks = [XLSXExternalLinks]::new()
 
     # Static Vars
     static [string]$XLSXPartType = 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet.main+xml'
