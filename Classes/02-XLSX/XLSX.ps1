@@ -1,6 +1,7 @@
 class XLSX : OOXML {
 
     [xml]$workbook
+    [XLSXDefinedNames]$XLSXDefinedNames = [XLSXDefinedNames]::new()
 
     # Static Vars
     static [string]$XLSXPartType = 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet.main+xml'
