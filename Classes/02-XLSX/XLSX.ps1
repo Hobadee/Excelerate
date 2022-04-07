@@ -39,7 +39,24 @@ class XLSX : OOXML {
             $this.tmpDir.Dispose()
             throw "Not an XLSX file!"
         }
-        
+
+        $this.loadWorkbook()
+        $this.loadDefinedNames()
+        $this.loadExternalLinks()
+
+        return $this
+    }
+
+
+    <##################
+    ##### LOADERS #####
+    ##################>
+    <#
+     # Stuff here is just part of [XLSX]load(), but would be too messy in a single method
+     #>
+
+
+    hidden[boolean]loadWorkbook(){
         $tmpPath = $this.tmpDir.getPath()
         $wrkbk = (Join-Path $tmpPath $this.OOXMLParts.getPartByType($this::XLSXPartType).getName())
 
@@ -51,8 +68,17 @@ class XLSX : OOXML {
             $this.tmpDir.Dispose()
             throw "Invalid XLSX file!"
         }
+        return $true
+    }
 
-        return $this
+
+    hidden[boolean]loadDefinedNames(){
+        return $true
+    }
+
+
+    hidden[boolean]loadExternalLinks(){
+        return $true
     }
 
 
