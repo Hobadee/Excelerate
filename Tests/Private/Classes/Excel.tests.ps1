@@ -1,10 +1,10 @@
-#Using Module ../../../build/excelerate/excelerate.psd1
+Using Module ../../../build/excelerate/excelerate.psd1
 
 
 InModuleScope Excelerate{
-	Describe "Excel Class" {
+	Describe "XLSX Class" {
 
-        Context "Testing blank Excel object" {
+        Context "Testing blank XLSX object" {
             BeforeAll{
                 $xlDir = "Tests"
                 $fname = "blank.xlsx"
@@ -12,32 +12,26 @@ InModuleScope Excelerate{
                 $relsFile = "_rels/.rels"
                 $saveFile = "/Users/eric.kincl/src/excelerate/testExcel.xlsx"
                 $xl = (Join-Path $xlDir $fname)
-                $excel = [Excel]::new($xl)
+                $XLSX = [XLSX]::new($xl)
             }
             AfterAll{
-                $excel.Dispose()
+                $XLSX.Dispose()
                 Remove-Item $saveFile
             }
 
 
-            It "Checking object type"{
+            It "Checking object"{
                 # Pester assertion "BeOfType" doesn't work with custom types
-                $excel.getType().Name | Should -Be "Excel"
+                $XLSX.getType().Name | Should -Be "XLSX"
+                $XLSX.checkXLSX() | Should -BeTrue
             }
             It "Checking files exist"{
-                $excel.getTempDir() | Should -exist
-                (Join-Path $excel.getTempDir() $workbookFile ) | Should -exist
-                (Join-Path $excel.getTempDir() $relsFile ) | Should -exist
-            }
-
-
-            It "Checking Getter Types"{
-                $excel.getTempDir() | Should -BeOfType string
-                $excel.getWorkbook() | Should -BeOfType xml
-                $excel.getFilename() | Should -BeOfType string
-            }
-            It "Checking Getters"{
-                $excel.getFilename() | Should -Be $fname
+                # This should be moved to the OOXML test
+                <#
+                $XLSX.getTempDir() | Should -exist
+                (Join-Path $XLSX.getTempDir() $workbookFile ) | Should -exist
+                (Join-Path $XLSX.getTempDir() $relsFile ) | Should -exist
+                #>
             }
 
             It "Checking Save As operations"{
@@ -45,12 +39,12 @@ InModuleScope Excelerate{
                 # Test that "saveAs" with a dir saves to the correct directory
                 # Test that saving on an existing file does/doesn't overwrite it
 
-                $saved = $excel.saveAs($saveFile)
+                $saved = $XLSX.saveAs($saveFile)
                 $saved | Should -BeOfType System.IO.FileInfo
                 $saved.FullName | Should -Be $saveFile
             }
             It "Checking Save As overwrite behavior"{
-                { $excel.saveAs($saveFile) } | Should -Throw
+                { $XLSX.saveAs($saveFile) } | Should -Throw
             }
         }		
 	}
