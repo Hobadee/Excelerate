@@ -1,9 +1,6 @@
 class XLSXExternalLinks : System.Collections.Generic.List[PSObject]{
 
 
-    [boolean]$nested = $false
-
-
     <#
      # We should probably have a method to check for duplicate rIds...?
      #>
@@ -23,28 +20,30 @@ class XLSXExternalLinks : System.Collections.Generic.List[PSObject]{
 
 
     <##
-     # Returns an [XLSXExternalLinks] object of *NON WORKING* links
-     # This is useful for later removal.
+     # Removes *NON WORKING* links from this object
+     # 
+     # NOTE: This is desctructive and will remove data!
      #
      # NOTE: This method may take some time as it will test all URIs if
      # they haven't been tested yet.
      #
-     # @return XLSXExternalLinks Object with list of link objects that are broken
+     # @return int Returns number of links removed
      #>
-    [XLSXExternalLinks]getBrokenLinks(){
-        if($this.nested -eq $true){
-            throw "Nesting [XLSXExternalLinks]::getBrokenLinks() is retarded"
-        }
-
-        $links = [XLSXExternalLinks]::new()
-        $links.nested = $true
+    [int]removeBrokenLinks(){
+        [int]$removed = 0
         
         foreach($XLSXExternalLink in $this){
             if($XLSXExternalLink.testURI() -eq $false){
-                $links.add($XLSXExternalLink)
+                if($this.Remove($XLSXExternalLink)){
+                    $removed++
+                }
+                else{
+                    $str = "Failed to remove item: " + $XLSXExternalLink.getRID()
+                    throw $str
+                }
             }
         }
-        return $links
+        return $this
     }
 
 
