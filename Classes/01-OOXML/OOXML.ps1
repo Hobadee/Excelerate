@@ -43,6 +43,7 @@ Read the Schema docs linked above before designing.
 
     # Static Vars
     static [string]$RootXMLPath = '[Content_Types].xml'
+    static [string]$OOXMLNS = 'http://schemas.openxmlformats.org/package/2006/content-types'
 
 
     <##
@@ -61,7 +62,7 @@ Read the Schema docs linked above before designing.
      # Set the filename of the file we are working on
      #
      #>
-    [boolean]setFilename([string]$filename){
+    [OOXML]setFilename([string]$filename){
         if($this.loaded){
             throw "Cannot load - already loaded!"
         }
@@ -70,7 +71,7 @@ Read the Schema docs linked above before designing.
         $fp = Get-Item $filename
         $this.file = $fp
 
-        return $true
+        return $this
     }
 
 
@@ -89,23 +90,24 @@ Read the Schema docs linked above before designing.
         # TODO: See if we can work on OOXML on-the-fly rather than unzipping
         $this.tmpDir = [tempDir]::new()
 
-        # Unzip XLSX into TempDir
-        $tmpPath = $this.tmpDir.getPath()
-        Write-Verbose "Extracting OOXML to $tmpPath"
         try{
+            # Unzip XLSX into TempDir
+            $tmpPath = $this.tmpDir.getPath()
+            Write-Verbose "Extracting OOXML to $tmpPath"
             Expand-Archive -LiteralPath $this.file.FullName -DestinationPath $tmpPath
+
+            # Load the root XML
+            $OOXML = (Join-Path $tmpPath $this::RootXMLPath)
+            Write-Debug "Loading OOXML: $OOXML"
+            # Get-Content loads the content of the file
+            [xml]$this.RootXML = Get-Content -LiteralPath $OOXML
         }
         catch{
             $this.tmpDir.Dispose()
             throw "Not an OOXML file!"
         }
 
-        $OOXML = (Join-Path $tmpPath $this::RootXMLPath)
-        Write-Debug "Loading OOXML: $OOXML"
-        # Get-Content loads the content of the file
-        [xml]$this.RootXML = Get-Content -LiteralPath $OOXML
-
-        if($this.RootXML.Types.xmlns -ne "http://schemas.openxmlformats.org/package/2006/content-types"){
+        if(!$this.checkOOXML()){
             $this.tmpDir.Dispose()
             throw "Not an OOXML file!"
         }
@@ -236,6 +238,16 @@ Read the Schema docs linked above before designing.
     ######################>
 
 
+	[boolean]checkOOXML(){
+		if($this.RootXML.Types.xmlns -eq [OOXML]::OOXMLNS){
+			return $true
+		}
+		else{
+			return $false
+		}
+	}
+
+
     <##
 	 # toString magic method
 	 # This method is called when an object is called as a string
@@ -254,7 +266,7 @@ Read the Schema docs linked above before designing.
     #>
     Dispose(){
         if(!$this.loaded){
-            Write.Debug "Not loaded yet - nothing to dispose"
+            Write-Debug "Not loaded yet - nothing to dispose"
         }
         # Nuke the temp directory and everything in it.
         $this.tmpDir.Dispose()
