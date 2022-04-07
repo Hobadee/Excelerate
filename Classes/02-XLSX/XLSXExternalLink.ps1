@@ -50,11 +50,29 @@ class XLSXExternalLink{
 
 
     <##
-     # Invalidate the cached test result and force a retest of the URI
+     # Invalidate the cached or manual test result and force a retest of the URI
+     #
+     # NOTE: This will override a manually set URI status!
+     #
+     # @return boolean $true if URI works, $false if not
      #>
     [boolean]forceTestURI(){
         $this.UriTested = $false
         return $this.testURI()
+    }
+
+
+    <##
+     # Forces the URI check to a manual value
+     # Useful for manually overriding URIs before later removal of non-working URIs
+     #
+     # $var boolean Status of the URI in question.  $true = working, $false = nonworking
+     # @return XLSXExternalLink Returns this object
+     #>
+    [XLSXExternalLink]forceURIStatus([boolean]$status){
+        $this.UriTested = $true
+        $this.UriWorks = $status
+        return $this
     }
 
 
