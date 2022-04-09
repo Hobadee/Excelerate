@@ -3,7 +3,7 @@ class XLSXDefinedName{
     [string]$name
     [string]$value
     [string]$localSheetId
-    [boolean]$hidden
+    [boolean]$hidden = $false
 
 
     <##################
