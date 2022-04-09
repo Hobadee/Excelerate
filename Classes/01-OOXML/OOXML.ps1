@@ -144,8 +144,8 @@ Read the Schema docs linked above before designing.
     <##
      # Save OOXML file with a new filename
      #
-     # @var string filename Filename to save as.  If no path given, current path will be used.
-     # @var boolean overwrite Optional.  True if we want to overwrite an existing file.  Defaults to False
+     # @param string filename Filename to save as.  If no path given, current path will be used.
+     # @param boolean overwrite Optional.  True if we want to overwrite an existing file.  Defaults to False
      # @return System.IO.FileInfo Returns the FileInfo object of the saved file
      ##>
     [System.IO.FileInfo]saveAs([string]$filename){
@@ -161,8 +161,8 @@ Read the Schema docs linked above before designing.
     <##
      # Actual save routine
      #
-     # @var string filename *FULL PATH INCLUDING NAME* of file to save as
-     # @var boolean overwrite True if we want to overwrite the existing file.  Defaults to False
+     # @param string filename *FULL PATH INCLUDING NAME* of file to save as
+     # @param boolean overwrite True if we want to overwrite the existing file.  Defaults to False
      # @return System.IO.FileInfo Returns the FileInfo object of the saved file
      ##>
     hidden [System.IO.FileInfo]doSave([string]$filename, [boolean]$overwrite){
@@ -216,7 +216,7 @@ Read the Schema docs linked above before designing.
     <##
      # Gets an XML object starting at $node
      #
-     # @var string Specifies an XPath search query. The query language is case-sensitive.
+     # @param string Specifies an XPath search query. The query language is case-sensitive.
      # @return xml Returns an XML object matching XPath
      #>
     [xml]getNode([string]$XPath){
