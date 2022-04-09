@@ -73,6 +73,22 @@ class XLSX : OOXML {
 
 
     hidden[boolean]loadDefinedNames(){
+        Write-Debug "Loading Defined Names..."
+        $i = 0
+        foreach($item in $this.workbook.workbook.definedNames.definedName){
+            $i++
+            $name = [XLSXDefinedName]::new()
+            $name.setName($item.name)
+            $name.setValue($item.'#text')
+            if($item.localSheetId -ne $null){
+                $name.setLocalSheetId($item.localSheetId)
+            }
+            if($item.hidden){
+                $name.setHidden($true)
+            }
+            $this.XLSXDefinedNames.Add($name)
+        }
+        Write-Debug "$i Defined Names loaded."
         return $true
     }
 
