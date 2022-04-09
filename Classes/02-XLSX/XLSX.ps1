@@ -104,6 +104,27 @@ class XLSX : OOXML {
     ##### END LOADERS #####
     ######################>
 
+    <###############
+    ##### SAVE #####
+    ###############>
+
+
+    <##
+     # Overload the parent doSave method so we can save our XLSX XML first before OOXML zips it up
+     #>
+    hidden [System.IO.FileInfo]doSave([string]$filename, [boolean]$overwrite){
+        # Save logic for XLSX stuff
+        # Make sure we save our XML!
+        $this.workbook.Save($this.getWorkbookXmlPath())
+
+        # Once our XLSX saving is done, call parent method
+        return ([OOXML]$this).doSave($filename, $overwrite)
+    }
+
+
+    <###################
+    ##### END SAVE #####
+    ###################>
 
 
     <##################
