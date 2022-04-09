@@ -97,10 +97,9 @@ Read the Schema docs linked above before designing.
             Expand-Archive -LiteralPath $this.file.FullName -DestinationPath $tmpPath
 
             # Load the root XML
-            $OOXML = (Join-Path $tmpPath $this::RootXMLPath)
-            Write-Debug "Loading OOXML: $OOXML"
+            Write-Debug ("Loading OOXML: " + $this.getRootXmlPath())
             # Get-Content loads the content of the file
-            [xml]$this.RootXML = Get-Content -LiteralPath $OOXML
+            [xml]$this.RootXML = Get-Content -LiteralPath $this.getRootXmlPath()
         }
         catch{
             $this.tmpDir.Dispose()
@@ -184,6 +183,11 @@ Read the Schema docs linked above before designing.
             }
         }
 
+
+        # Save our object shit to the temp dir first
+        $this.RootXML.Save($this.getRootXmlPath())
+
+
         # Zip up TempDir into $filename
         # Compress-Archive currently has a bug where there is no way of zipping hidden files.
         # This is a problem because some of the files are dotfiles
@@ -232,6 +236,13 @@ Read the Schema docs linked above before designing.
         return $this.file.name
     }
 
+
+    <##
+     #
+     #>
+    [string]getRootXmlPath(){
+        return (Join-Path $this.tmpDir.getPath() $this::RootXMLPath)
+    }
 
     <######################
     ##### END GETTERS #####

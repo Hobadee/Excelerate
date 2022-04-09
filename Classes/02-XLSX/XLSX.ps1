@@ -48,6 +48,11 @@ class XLSX : OOXML {
     }
 
 
+    <########################
+    ##### END OVERRIDES #####
+    ########################>
+
+
     <##################
     ##### LOADERS #####
     ##################>
@@ -57,12 +62,9 @@ class XLSX : OOXML {
 
 
     hidden[boolean]loadWorkbook(){
-        $tmpPath = $this.tmpDir.getPath()
-        $wrkbk = (Join-Path $tmpPath $this.OOXMLParts.getPartByType($this::XLSXPartType).getName())
-
-        Write-Debug "Loading XLSX Workbook: $wrkbk"
+        Write-Debug ("Loading XLSX Workbook: " + $this.getWorkbookXmlPath())
         # Get-Content loads the content of the file
-        [xml]$this.workbook = Get-Content -LiteralPath $wrkbk
+        [xml]$this.workbook = Get-Content -LiteralPath $this.getWorkbookXmlPath()
 
         if($this.workbook.workbook.xmlns -ne $this::XLSXWorkbookXMLNS){
             $this.tmpDir.Dispose()
@@ -98,9 +100,29 @@ class XLSX : OOXML {
     }
 
 
-    <########################
-    ##### END OVERRIDES #####
-    ########################>
+    <######################
+    ##### END LOADERS #####
+    ######################>
+
+
+
+    <##################
+    ##### GETTERS #####
+    ##################>
+
+
+    <##
+     # Get the path of the main XLSX Workbook XML
+     #>
+    [string]getWorkbookXmlPath(){
+        return (Join-Path $this.tmpDir.getPath() $this.OOXMLParts.getPartByType($this::XLSXPartType).getName())
+    }
+
+
+    <######################
+    ##### END GETTERS #####
+    ######################>
+    
 
 
 	[boolean]checkXLSX(){
