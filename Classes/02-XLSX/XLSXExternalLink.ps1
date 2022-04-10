@@ -38,9 +38,19 @@ class XLSXExternalLink{
 
 
         #TODO: Implement me!
+        <#
         # Proper testing, especially cross-platform, will be hard
         # Multiple protocols must be taken into account such as
         # SMB, HTTP(S), and local filesystem
+        #
+        # There doesn't appear to be an "easy" button for this.
+        # [System.Uri] class could at least help parse things out.  Check C# classes for more possibilities
+        # Might need to make our own class that does a switch() for various types of URIs
+        #
+        # For files, Test-Path works
+        # For web URLs, Invoke-Webrequest might be able to help us.
+        # 
+        #>
 
 
         $this.UriTested = $true
