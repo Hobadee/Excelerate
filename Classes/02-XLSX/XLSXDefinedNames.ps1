@@ -13,7 +13,7 @@ class XLSXDefinedNames : System.Collections.Generic.List[PSObject]{
      #>
     [int]removeBrokenRefs(){
         $names = $this.findBrokenRefs()
-        $removed = $this.removeNamesByObject($names)
+        $removed = $this.removeNamesByObjects($names)
         return $removed
     }
 
@@ -47,7 +47,7 @@ class XLSXDefinedNames : System.Collections.Generic.List[PSObject]{
      # @param XLSXDefinedNames $names Takes a XLSXDefinedNames list of XLSXDefinedName objects to remove from this object
      # @return int Number of items removed from this object
      #>
-    [int]removeNamesByObject([XLSXDefinedNames]$names){
+    [int]removeNamesByObjects([XLSXDefinedNames]$names){
         [int]$removed = 0
         foreach($item in $names){
             if($this.Remove($item)){
