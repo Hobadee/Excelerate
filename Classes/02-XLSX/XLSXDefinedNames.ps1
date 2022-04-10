@@ -11,7 +11,7 @@ class XLSXDefinedNames : System.Collections.Generic.List[PSObject]{
      #
      # @return int Returns the number of references removed
      #>
-    [int]findRemoveBrokenRefs(){
+    [int]removeBrokenRefs(){
         $names = $this.findBrokenRefs()
         $removed = $this.removeNamesByObject($names)
         return $removed
