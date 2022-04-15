@@ -45,7 +45,13 @@ Copyright = '(c)2022 Pliancy. All rights reserved.'
 # ProcessorArchitecture = 'None'
 
 # Modules that must be imported into the global environment prior to importing this module
-#RequiredModules = @({ModuleName="Pansies",ModuleVersion="1.4.0",Guid="6c376de1-1baf-4d52-9666-d46f6933bc16"})
+RequiredModules = @(
+    @{
+        ModuleName="test-uri";
+        ModuleVersion="1.0.0";
+        GUID="6d0eb1a4-cdf5-44e0-bcf5-be974386a36f"
+    }
+)
 
 
 # Assemblies that must be loaded prior to importing this module
