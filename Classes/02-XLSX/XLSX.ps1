@@ -96,6 +96,23 @@ class XLSX : OOXML {
 
 
     hidden[boolean]loadExternalLinks(){
+        # TODO: Finish implementing me!
+        return $false
+        Write-Debug "Loading External Links..."
+        $i = 0
+        foreach($item in $this.workbook.workbook.externalReferences.ChildNodes){
+            $i++
+            $link = [XLSXExternalLink]::new()
+            $link.setRID($item.id)
+            <#
+            # At this point we have a list of all the RIDs.
+            # We now need to load /xl/_rels/workbook.xml.rels
+            # Then we tie each RID to a Target
+            # Then we load each Target (in relation to the "/xl/" folder)
+            # And we can load those as actual ExternalLink objects to check
+            # The XLSXExternalLinks object should probably track the workbook.xml.rels and modify it as needed
+            #>
+        }
         return $true
     }
 
