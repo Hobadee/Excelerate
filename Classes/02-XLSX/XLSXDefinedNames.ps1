@@ -22,6 +22,8 @@ class XLSXDefinedNames : System.Collections.Generic.List[PSObject]{
      # Find invalid references in this object, and return a new object containing those references
      # An invalid reference is any reference that contains "#REF!" ( -like "*#REF!*" )
      #
+     # Logic to check for broken refs should probably be moved into XLSXDefinedName class later
+     #
      # NOTE: This may take some time to run on large datasets
      #
      # @return XLSXDefinedNames Returns an XLSXDefinedNames object with a bunch of children XLSXDefinedName objects that have broken refs
@@ -68,6 +70,7 @@ class XLSXDefinedNames : System.Collections.Generic.List[PSObject]{
 
         foreach($item in $names){
             if($this.Remove($item)){
+                Write-Verbose ("Removed defined name: " + $item.getName())
                 $removed++
             }
             else{

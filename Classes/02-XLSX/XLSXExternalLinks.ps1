@@ -69,10 +69,11 @@ class XLSXExternalLinks : System.Collections.Generic.List[PSObject]{
 
         foreach($item in $links){
             if($this.Remove($item)){
+                Write-Verbose ("Removed link: " + $item.getTargetURI())
                 $removed++
             }
             else{
-                $str = "Failed to remove item: " + $item.getName()
+                $str = "Failed to remove item: " + $item.getTargetURI()
                 throw $str
             }
 
