@@ -67,6 +67,24 @@ class XLSXExternalLinks : System.Collections.Generic.List[PSObject]{
         [int]$i = 0
         $total = $links.count
 
+        <#
+        # TODO: We need to remove several items:
+        #         - The XML entries in /xl/workbook.xml
+        #         - The XML entries in /xl/rels/workbook.xml.rels
+        #         - The XML file in /xl/externalLinks/externalLink<NUM>.xml
+        #         - The XML file in /xl/externalLinks/_rels/externalLink<NUM>.xml.rels
+        #
+        # The XML link files should probably be directly handled by the XLSXExternalLink class
+        # The XML entries should probably be handled here
+        #>
+
+        
+        <#
+        # NOTE:
+        # The following code was almost completely taken from XLSXDefinedNames.
+        # This will have to be drasticly changed to accomplish the stated goals
+        #>
+
         foreach($item in $links){
             if($this.Remove($item)){
                 Write-Verbose ("Removed link: " + $item.getTargetURI())
