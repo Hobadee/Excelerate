@@ -39,10 +39,11 @@ function Repair-XLSX {
 	param (
 		[parameter(Mandatory=$true)]
 		[String]
-		$Infile
+		$InFile
 	,
+		[parameter(Mandatory=$true)]
 		[String]
-		$Outfile
+		$OutFile
 	,
 		[Switch]
 		$Overwrite
@@ -73,7 +74,22 @@ function Repair-XLSX {
 		-User wants a report of how many errant items are detected
 	#>
 
-	return $false
+
+	<##
+	 # This is an MVP - it takes a file, cleans it automatically, and saves it
+	 # There are 0 options here currently.  This needs to be flushed out!
+	 #
+	 # TODO: Flush out options
+	 #>
+	try{
+		$xl = Test-XLSX -Filename $InFile
+		$xl.removeAllExternalReferences() | Out-Null
+		$xl.XLSXDefinedNames.removeBrokenRefs()
+		$xl.saveAs($OutFile)
+	}
+	finally{
+		$xl.Dispose()
+	}
 
 	<#
 	echo "Status:  [$(New-Text "Success" -fg "Green")]"
