@@ -32,27 +32,13 @@ class XLSXExternalLink{
      # Will only test once - subsequent runs will return cached value
      #>
     [boolean]testURI(){
+        # Check if we have tested already and return cached result if so
         if($this.UriTested -eq $true){
             return $this.UriWorks
         }
 
-
-        #TODO: Implement me!
-        <#
-        # Proper testing, especially cross-platform, will be hard
-        # Multiple protocols must be taken into account such as
-        # SMB, HTTP(S), and local filesystem
-        #
-        # There doesn't appear to be an "easy" button for this.
-        # [System.Uri] class could at least help parse things out.  Check C# classes for more possibilities
-        # Might need to make our own class that does a switch() for various types of URIs
-        #
-        # For files, Test-Path works
-        # For web URLs, Invoke-Webrequest might be able to help us.
-        # 
-        #>
-
-
+        # Offload testing to the Test-Uri module I created
+        $this.UriWorks = Test-Uri $this.targetURI
         $this.UriTested = $true
 
         return $this.UriWorks
