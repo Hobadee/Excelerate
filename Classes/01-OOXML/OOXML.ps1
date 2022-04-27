@@ -244,6 +244,13 @@ Read the Schema docs linked above before designing.
         return (Join-Path $this.tmpDir.getPath() $this::RootXMLPath)
     }
 
+    <##
+     # @return The root path of our temp dir where we are working on the OOXML
+     #>
+    [string]getRootPath(){
+        return $this.tmpDir.getPath()
+    }
+
     <######################
     ##### END GETTERS #####
     ######################>

@@ -172,4 +172,25 @@ class XLSX : OOXML {
 		}
 	}
 
+    <########################
+    ##### MISC BULLSHIT #####
+    ########################>
+
+
+    <##
+     # This should *NOT* be in the final version!
+     # This is a temporary hack to get us to MVP quickly
+     # Since parsing ExternalReferences will be a major project,
+     # and often we can just nuke them all, enable nuking of all ExternalReferences.
+     #
+     # TODO: Ensure this can be implemented cleanly via child methods.  This may
+     #   involve a few different method calls
+     #>
+    [XLSX]removeAllExternalReferences(){
+        Write-Verbose "Removing all External References!"
+        $this.workbook.workbook.externalReferences.RemoveAll()
+        Remove-Item -Recurse (Join-Path $this.getRootPath() "xl" "externalLinks")
+        return $this
+    }
+
 }
