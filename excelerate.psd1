@@ -18,7 +18,7 @@ CompatiblePSEditions = @('Core', 'Desktop')
 
 
 # Module information
-ModuleVersion = '0.0.1'
+ModuleVersion = '0.1.0'
 GUID = '5bfda308-9663-4d78-925e-65504bc75cea'
 Description = 'Excelerate - Speed up Excel files by removing broken references'
 
