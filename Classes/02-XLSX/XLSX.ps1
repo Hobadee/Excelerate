@@ -63,8 +63,8 @@ class XLSX : OOXML {
 
     hidden[boolean]loadWorkbook(){
         Write-Debug ("Loading XLSX Workbook: " + $this.getWorkbookXmlPath())
-        # Get-Content loads the content of the file
-        [xml]$this.workbook = Get-Content -LiteralPath $this.getWorkbookXmlPath()
+        $this.workbook = New-Object xml
+        $this.workbook.Load($this.getWorkbookXmlPath())
 
         if($this.workbook.workbook.xmlns -ne $this::XLSXWorkbookXMLNS){
             $this.tmpDir.Dispose()

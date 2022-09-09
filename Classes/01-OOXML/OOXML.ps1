@@ -98,8 +98,9 @@ Read the Schema docs linked above before designing.
 
             # Load the root XML
             Write-Debug ("Loading OOXML: " + $this.getRootXmlPath())
-            # Get-Content loads the content of the file
-            [xml]$this.RootXML = Get-Content -LiteralPath $this.getRootXmlPath()
+            $this.RootXML = New-Object xml
+            $this.RootXML.PreserveWhitespace = $false
+            $this.RootXML.load($this.getRootXmlPath())
         }
         catch{
             $this.tmpDir.Dispose()
@@ -185,6 +186,7 @@ Read the Schema docs linked above before designing.
 
 
         # Save our object shit to the temp dir first
+        $this.RootXML.PreserveWhitespace = $true
         $this.RootXML.Save($this.getRootXmlPath())
 
 
