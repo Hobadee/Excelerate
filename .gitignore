@@ -156,3 +156,4 @@ $RECYCLE.BIN/
 ### Module-Builder ###
 # Build folder
 build/*
+testdata/
