@@ -19,7 +19,7 @@ function Test-OOXML {
 		$Filename
 	)
 
-	$ooxml = [OOXML]::new($filename)
+	$ooxml = [OOXML]::new($Filename)
 	return $ooxml
 
 	<#
