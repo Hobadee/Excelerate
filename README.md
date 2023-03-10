@@ -11,6 +11,8 @@ To run, load the PowerShell module (`Import-Module excelerate.psd1`) and run `Re
 
 Note that Repair-XLSX will support many options in the future and those options are hinted, but they will currently do nothing.
 
+## Dependancies
+This project is dependant on the `Module-Builder` and `Test-Uri` modules.
 
 ## Building
 This project may be built using `make`.  To build, simply run `make` then `make test` to run the Pester tests.

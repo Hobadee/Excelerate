@@ -14,16 +14,60 @@ As part of cleanup, ensure that neither is orphaned and removed if orphaned.
 
 class XLSXExternalLink{
 
+    <#
+    Reference - The reference to the external link in the root workbook file.  This JUST contains an rId.
+    Relationship - The relationship of the rId to the XML file containing the link.
+    externalLink - The XML file describing the actual link
+    #>
+    [System.Xml.XmlElement] $reference
+    [System.Xml.XmlElement] $relationship
+    [XmlStream] $externalLink
+    [XmlStream] $externalLinkRel
 
-    [string]$rId
-    [System.IO.FileInfo]$targetFile
-    [string]$targetURI
     [boolean]$UriTested = $false
     [boolean]$UriWorks = $null
 
 
-    XLSXExternalLink(){
-        # Nothing to do
+    <#
+    .SYNOPSIS
+    Class contructor
+    #>
+    XLSXExternalLink([System.Xml.XmlElement]$reference, [XLSX]$xlsx){
+        $this.reference = $reference
+
+        <#
+        To get target:
+        1. load /xl/_rels/workbook.xml.rels
+        2. match RID
+        3. load "Target" attribute
+        #>
+        #$target = 
+
+        # Search for the "rId" in the relation XML
+        # and pull the relation data
+        $index = $xlsx.relations.DocumentElement.Relationship.Id.IndexOf($this.getRID())
+        $this.relationship = $xlsx.relations.DocumentElement.Relationship[$index]
+
+        $fileLink = '/xl/'+$this.relationship.Target
+
+        try{
+            $this.externalLink = $xlsx.getXmlFile($fileLink)
+        }
+        catch{
+            # External link doesn't exist and must be invalid.  Recommend for cleanup
+            [Logging]::Debug("Failed to load '"+$fileLink+"' from XLSX")
+            $this.externalLink = $null
+            $this.forceURIStatus($false)
+        }
+
+        <#
+        # At this point we have a list of all the RIDs.
+        # We now need to load /xl/_rels/workbook.xml.rels
+        # Then we tie each RID to a Target
+        # Then we load each Target (in relation to the "/xl/" folder)
+        # And we can load those as actual ExternalLink objects to check
+        # The XLSXExternalLinks object should probably track the workbook.xml.rels and modify it as needed
+        #>
     }
 
 
@@ -76,34 +120,10 @@ class XLSXExternalLink{
     ##### GETTERS #####
     ##################>
     [string]getRID(){
-        return $this.rId
-    }
-    [System.IO.FileInfo]getTargetFile(){
-        return $this.targetFile
-    }
-    [System.IO.FileInfo]getTargetRelFile(){
-        # This won't actually work.  Still need to fully dev it
-        return (Join-Path $this.targetFile "_rels" ($this.targetFile + ".rels"))
+        return $this.reference.id
     }
     [string]getTargetURI(){
         return $this.targetURI
-    }
-
-
-    <##################
-    ##### SETTERS #####
-    ##################>
-    [XLSXExternalLink]setRID([string]$RID){
-        $this.rId = $RID
-        return $this
-    }
-    [XLSXExternalLink]setTargetFile([string]$targetFile){
-        $this.targetFile = $targetFile
-        return $this
-    }
-    [XLSXExternalLink]setTargetURI([string]$targetURI){
-        $this.targetURI = $targetURI
-        return $this
     }
 
 

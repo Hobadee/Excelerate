@@ -1,134 +1,80 @@
 class XLSX : OOXML {
 
-    [xml]$workbook
-    [XLSXDefinedNames]$XLSXDefinedNames = [XLSXDefinedNames]::new()
-    [XLSXExternalLinks]$XLSXExternalLinks = [XLSXExternalLinks]::new()
+    hidden [XmlStream] $workbook
+    hidden [XmlStream] $relations
+    hidden [XLSXExternalLinks] $XLSXExternalLinks = [XLSXExternalLinks]::new()
 
     # Static Vars
-    static [string]$XLSXPartType = 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet.main+xml'
-    static [string]$XLSXWorkbookXMLNS = 'http://schemas.openxmlformats.org/spreadsheetml/2006/main'
+    static [string] $XLSXWorkbookXMLNS = 'http://schemas.openxmlformats.org/spreadsheetml/2006/main'
+    static [string] $XLSXWorkbook = "/xl/workbook.xml"
+    static [string] $XLSXRelations = "/xl/_rels/workbook.xml.rels"
 
 
-    <#######################
-    ##### CONSTRUCTORS #####
-    #######################>
+    <#################################
+     #          Constructor          #
+     #################################>
 
 
-    XLSX(){
-        # Nothing to do - File must be set and loaded later
-    }
-    XLSX([string]$filename){
-        $this.setFilename($filename)
-        $this.load()
-    }
+    XLSX([string]$Filename) : base($Filename){}
 
 
-    <###########################
-    ##### END CONSTRUCTORS #####
-    ###########################>
-
-
-    <####################
-    ##### OVERRIDES #####
-    ####################>
+    <###############################
+     #          Overrides          #
+     ###############################>
 
 
     [XLSX]load(){
         ([OOXML]$this).load()
-        if($this.checkXLSX() -ne $true){
-            $this.tmpDir.Dispose()
-            throw "Not an XLSX file!"
+
+        if(!$this.isValid()){
+            [Logging]::Debug("Couldn't verify XLSX data")
+            throw [System.IO.FileLoadException]::new()
         }
 
-        $this.loadWorkbook()
-        $this.loadDefinedNames()
-        $this.loadExternalLinks()
+        # Load master workbook
+        $this.workbook = $this.getXmlFile([XLSX]::XLSXWorkbook)
+
+        # Load the Relations XML
+        $this.relations = $this.getXmlFile([XLSX]::XLSXRelations)
+
+        # Load external links
+        [Logging]::Debug("Loading External Links...")
+        foreach($ref in $this.workbook.DocumentElement.externalReferences.ChildNodes){
+            $link = [XLSXExternalLink]::new($ref, $this)
+            $this.XLSXExternalLinks.Add($link)
+        }
 
         return $this
     }
 
 
-    <########################
-    ##### END OVERRIDES #####
-    ########################>
+    <##############################
+     #          Checkers          #
+     ##############################>
 
 
-    <##################
-    ##### LOADERS #####
-    ##################>
     <#
-     # Stuff here is just part of [XLSX]load(), but would be too messy in a single method
-     #>
-
-
-    hidden[boolean]loadWorkbook(){
-        Write-Debug ("Loading XLSX Workbook: " + $this.getWorkbookXmlPath())
-        $this.workbook = New-Object xml
-        $this.workbook.Load($this.getWorkbookXmlPath())
-
-        if($this.workbook.workbook.xmlns -ne $this::XLSXWorkbookXMLNS){
-            $this.tmpDir.Dispose()
-            throw "Invalid XLSX file!"
+    .SYNOPSIS
+    Override method to check if this is a valid XLSX file or not
+    #>
+    [Boolean]isValid(){
+        if(!$this.isLoaded()){
+            throw [NullReferenceException]::new()
         }
-        return $true
+        # This file contains the core properties for any Excel XML document.
+        return $this.OOXML.PartExists([XLSX]::XLSXWorkbook)
     }
 
 
-    hidden[boolean]loadDefinedNames(){
-        Write-Debug "Loading Defined Names..."
-        $i = 0
-        foreach($item in $this.workbook.workbook.definedNames.definedName){
-            $i++
-            $name = [XLSXDefinedName]::new()
-            $name.setName($item.name)
-            $name.setValue($item.'#text')
-            if($item.localSheetId -ne $null){
-                $name.setLocalSheetId($item.localSheetId)
-            }
-            if($item.hidden){
-                $name.setHidden($true)
-            }
-            $this.XLSXDefinedNames.Add($name)
-        }
-        Write-Debug "$i Defined Names loaded."
-        return $true
-    }
+    <#####################################
+     #          File Operations          #
+     #####################################>
 
 
-    hidden[boolean]loadExternalLinks(){
-        # TODO: Finish implementing me!
-        return $false
-        Write-Debug "Loading External Links..."
-        $i = 0
-        foreach($item in $this.workbook.workbook.externalReferences.ChildNodes){
-            $i++
-            $link = [XLSXExternalLink]::new()
-            $link.setRID($item.id)
-            <#
-            # At this point we have a list of all the RIDs.
-            # We now need to load /xl/_rels/workbook.xml.rels
-            # Then we tie each RID to a Target
-            # Then we load each Target (in relation to the "/xl/" folder)
-            # And we can load those as actual ExternalLink objects to check
-            # The XLSXExternalLinks object should probably track the workbook.xml.rels and modify it as needed
-            #>
-        }
-        return $true
-    }
-
-
-    <######################
-    ##### END LOADERS #####
-    ######################>
-
-    <###############
-    ##### SAVE #####
-    ###############>
-
-
-    <##
-     # Overload the parent doSave method so we can save our XLSX XML first before OOXML zips it up
-     #>
+    <#
+    .SYNOPSIS
+    Overload the parent doSave method so we can save our XLSX XML first before OOXML zips it up
+    #>
     hidden [System.IO.FileInfo]doSave([string]$filename, [boolean]$overwrite){
         # Save logic for XLSX stuff
         # Make sure we save our XML!
@@ -139,42 +85,77 @@ class XLSX : OOXML {
     }
 
 
-    <###################
-    ##### END SAVE #####
-    ###################>
+    <#
+    .SYNOPSIS
+    Save (overwrite) the original OOXML
 
-
-    <##################
-    ##### GETTERS #####
-    ##################>
-
-
-    <##
-     # Get the path of the main XLSX Workbook XML
-     #>
-    [string]getWorkbookXmlPath(){
-        return (Join-Path $this.tmpDir.getPath() $this.OOXMLParts.getPartByType($this::XLSXPartType).getName())
+    .DESCRIPTION
+    This saves (overwriting) the file, but does NOT close it.
+    #>
+    save(){
+        if(!$this.isLoaded()){
+            throw [NullReferenceException]::new()
+        }
+        $this.workbook.save()
+        ([OOXML]$this).save()
     }
 
 
-    <######################
-    ##### END GETTERS #####
-    ######################>
-    
+
+    <#
+    .SYNOPSIS
+    Implement Dispose to fullfill the IDisposable interface
+
+    .DESCRIPTION
+    This saves (overwriting) and closes the file
+    #>
+    Dispose(){
+        if(!$this.isLoaded()){
+            throw [NullReferenceException]::new()
+        }
+
+        $this.workbook.Dispose()
+        ([OOXML]$this).Dispose()
+    }
 
 
-	[boolean]checkXLSX(){
-		if(([OOXML]$this).OOXMLParts.getPartByType($this::XLSXPartType) -ne $null){
-			return $true
-		}
-		else{
-			return $false
-		}
-	}
+    <#############################
+     #          Getters          #
+     #############################>
 
-    <########################
-    ##### MISC BULLSHIT #####
-    ########################>
+
+    getWorkbookXmlPath(){
+        # Dead function - DO NOT IMPLEMENT!
+        # Still references to it in code, so here for compiling reasons
+        [Logging]::Debug("getWorkbookXmlPath() called.  Let me die in peace!")
+        throw [NotImplementedException]::new()
+    }
+
+
+    <###################################
+     #          Misc Bullshit          #
+     ###################################>
+
+
+    <#
+    .SYNOPSIS
+    Remove all broken refs
+
+    .DESCRIPTION
+    Remove all broken refs.  In original design, refs were searched first, then removed.  This
+    was a longer process, but would allow for manual intervention in the future.  We should consider
+    going back to this design in the future, but for now a blanked removal will suffice.
+    #>
+    removeBrokenRefs(){
+        $removed = 0;
+        foreach($name in $this.workbook.DocumentElement.definedNames.ChildNodes){
+            if($name.'#text' -like '*#REF!*'){
+                #$name.RemoveAll()
+                $removed++
+            }
+        }
+        [Logging]::Debug("$removed broken references removed")
+    }
 
 
     <##
@@ -188,7 +169,7 @@ class XLSX : OOXML {
      #>
     [XLSX]removeAllExternalReferences(){
         Write-Verbose "Removing all External References!"
-        $this.workbook.workbook.externalReferences.RemoveAll()
+        $this.workbook.DocumentElement.externalReferences.RemoveAll()
         Remove-Item -Recurse (Join-Path $this.getRootPath() "xl" "externalLinks")
         return $this
     }

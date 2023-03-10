@@ -36,9 +36,9 @@ class OOXML : IDisposable {
     hidden [System.Xml.XmlDocument]$RootXML
 
     # Static Vars
-    # These had a problem being declared statically
-    static $FileAccess = [System.IO.FileAccess]::ReadWrite
-    static $FileMode = [System.IO.FileMode]::Open
+    hidden static [string] $OOXMLCore = "/docProps/core.xml"
+    hidden static $FileAccess = [System.IO.FileAccess]::ReadWrite
+    hidden static $FileMode = [System.IO.FileMode]::Open
 
 
     <#
@@ -69,17 +69,26 @@ class OOXML : IDisposable {
     <#
     .SYNOPSIS
     Returns an XML object of the XML file requested
+
+    .OUTPUTS
+    XmlStream.  XmlStream object.  (This just extends System.Xml.XmlDocument to easily load/save)
     #>
-    [System.Xml.XmlDocument] getXmlFile([String] $filename){
-        $xmlStream = $this.getFile($filename)
-        $xmlReader = [System.Xml.XmlReader]::Create($xmlStream)
-        $xml = [System.Xml.XmlDocument]::new()
-        try {
-            $xml.Load($xmlReader)
-        }
-        catch {
-            throw [System.IO.FileLoadException]::new()
-        }
+    [XmlStream] getXmlFile([String] $Filename){
+        #$stream = $this.getFileStream($Filename)
+
+
+        <#
+        [Logging]::Debug("Temp disable stuff - clean up later")
+        $part = $this.OOXML.GetPart($Filename)
+        [Logging]::Debug("Filename:"+$Filename+"\nPart:"+$part)
+        [Logging]::Debug($part.GetRelationships())
+        $stream = $part.GetStream([System.IO.FileMode]::Open)
+        $xml = [XmlStream]::new($stream)
+        #>
+
+
+        $stream = $this.OOXML.GetPart($Filename).GetStream([OOXML]::FileMode, [OOXML]::FileAccess)
+        $xml = [XmlStream]::new($stream)
         return $xml
     }
 
@@ -88,30 +97,14 @@ class OOXML : IDisposable {
     .SYNOPSIS
     Returns a filestream object of the file requested
     #>
-    [System.IO.Stream] getFile([String] $filename){
+    [System.IO.Stream] getFileStream([String] $Filename){
         try{
-            $entry = $this.OOXML.GetEntry($filename)
+            $stream = $this.OOXML.GetPart($Filename).GetStream([OOXML]::FileMode, [OOXML]::FileAccess)
         }
         catch{
             throw [System.IO.FileNotFoundException]::new()
         }
-        return $entry.Open()
-    }
-
-
-    <#
-    .SYNOPSIS
-    Gets an XML object starting at $node
-    
-    .PARAMETER XPath
-    String. Specifies an XPath search query. The query language is case-sensitive.
-
-    .OUTPUTS
-    xml. Returns an XML object matching XPath
-     #>
-    [xml]getNode([String]$XPath){
-        $xml = Select-Xml -Content $this.RootXML -XPath $XPath
-        return $xml
+        return $stream
     }
 
 
@@ -119,7 +112,7 @@ class OOXML : IDisposable {
     .SYNOPSIS
     Get filename we are currently working on
     #>
-    [String]getFilename(){
+    [String] getFilename(){
         return $this.filename
     }
 
@@ -161,7 +154,7 @@ class OOXML : IDisposable {
         }
         # https://en.wikipedia.org/wiki/Office_Open_XML_file_formats
         # This file contains the core properties for any Office Open XML document.
-        return $this.OOXML.PartExists("/docProps/core.xml")
+        return $this.OOXML.PartExists([OOXML]::OOXMLCore)
     }
 
 
@@ -192,7 +185,7 @@ class OOXML : IDisposable {
 
         # Do a real check if we are actual OOXML and puke if not
         if(!$this.isValid()){
-            Write-Debug("Couldn't verify OOXML headers")
+            Write-Debug("Couldn't verify OOXML data")
             throw [System.IO.FileLoadException]::new()
         }
 
@@ -226,7 +219,6 @@ class OOXML : IDisposable {
         if(!$this.isLoaded()){
             throw [NullReferenceException]::new()
         }
-        # Nuke the temp directory and everything in it.
         # NOTE: Dispose on the OOXML object saves it!
         $this.OOXML.Dispose()
         #base.Dispose  # This is supposed to be called, but errors out

@@ -19,7 +19,7 @@ function Test-XLSX {
 		$Filename
 	)
 
-	$xlsx = [XLSX]::new($filename)
+	$xlsx = [XLSX]::new($Filename)
 	return $xlsx
 
 	<#
