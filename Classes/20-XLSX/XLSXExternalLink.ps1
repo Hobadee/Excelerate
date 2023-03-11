@@ -19,10 +19,7 @@ class XLSXExternalLink{
     Relationship - The relationship of the rId to the XML file containing the link.
     externalLink - The XML file describing the actual link
     #>
-    [System.Xml.XmlElement] $reference
-    [System.Xml.XmlElement] $relationship
-    [XmlStream] $externalLink
-    [XmlStream] $externalLinkRel
+    [System.IO.Packaging.PackageRelationship] $relationship
 
     [boolean]$UriTested = $false
     [boolean]$UriWorks = $null
@@ -32,8 +29,8 @@ class XLSXExternalLink{
     .SYNOPSIS
     Class contructor
     #>
-    XLSXExternalLink([System.Xml.XmlElement]$reference, [XLSX]$xlsx){
-        $this.reference = $reference
+    XLSXExternalLink([System.IO.Packaging.PackageRelationship]$relationship, [OOXML]$ooxml){
+        $this.relationship = $relationship
 
         <#
         To get target:
@@ -42,6 +39,10 @@ class XLSXExternalLink{
         3. load "Target" attribute
         #>
         #$target = 
+
+
+
+        <#
 
         # Search for the "rId" in the relation XML
         # and pull the relation data
@@ -59,6 +60,10 @@ class XLSXExternalLink{
             $this.externalLink = $null
             $this.forceURIStatus($false)
         }
+
+        #>
+
+
 
         <#
         # At this point we have a list of all the RIDs.
@@ -120,7 +125,7 @@ class XLSXExternalLink{
     ##### GETTERS #####
     ##################>
     [string]getRID(){
-        return $this.reference.id
+        return $this.relationship.Dd
     }
     [string]getTargetURI(){
         return $this.targetURI

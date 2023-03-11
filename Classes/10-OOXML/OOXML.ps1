@@ -33,12 +33,11 @@ class OOXML : IDisposable {
     hidden [System.IO.Packaging.ZipPackage] $OOXML
 
     hidden [String]$Filename
-    hidden [System.Xml.XmlDocument]$RootXML
 
     # Static Vars
     hidden static [string] $OOXMLCore = "/docProps/core.xml"
-    hidden static $FileAccess = [System.IO.FileAccess]::ReadWrite
     hidden static $FileMode = [System.IO.FileMode]::Open
+    hidden static $FileAccess = [System.IO.FileAccess]::ReadWrite
 
 
     <#
@@ -71,24 +70,11 @@ class OOXML : IDisposable {
     Returns an XML object of the XML file requested
 
     .OUTPUTS
-    XmlStream.  XmlStream object.  (This just extends System.Xml.XmlDocument to easily load/save)
+    XmlPart.  XmlPart object.  (This just extends System.Xml.XmlDocument to easily load/save)
     #>
-    [XmlStream] getXmlFile([String] $Filename){
-        #$stream = $this.getFileStream($Filename)
-
-
-        <#
-        [Logging]::Debug("Temp disable stuff - clean up later")
+    [XmlPart] getXmlFile([String] $Filename){
         $part = $this.OOXML.GetPart($Filename)
-        [Logging]::Debug("Filename:"+$Filename+"\nPart:"+$part)
-        [Logging]::Debug($part.GetRelationships())
-        $stream = $part.GetStream([System.IO.FileMode]::Open)
-        $xml = [XmlStream]::new($stream)
-        #>
-
-
-        $stream = $this.OOXML.GetPart($Filename).GetStream([OOXML]::FileMode, [OOXML]::FileAccess)
-        $xml = [XmlStream]::new($stream)
+        $xml = [XmlPart]::new($part, [OOXML]::FileMode, [OOXML]::FileAccess)
         return $xml
     }
 

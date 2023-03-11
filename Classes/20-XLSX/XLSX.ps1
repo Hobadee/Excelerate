@@ -1,7 +1,7 @@
 class XLSX : OOXML {
 
-    hidden [XmlStream] $workbook
-    hidden [XmlStream] $relations
+    hidden [XmlPart] $workbook
+    hidden [XmlPart] $relations
     hidden [XLSXExternalLinks] $XLSXExternalLinks = [XLSXExternalLinks]::new()
 
     # Static Vars
@@ -40,7 +40,8 @@ class XLSX : OOXML {
         # Load external links
         [Logging]::Debug("Loading External Links...")
         foreach($ref in $this.workbook.DocumentElement.externalReferences.ChildNodes){
-            $link = [XLSXExternalLink]::new($ref, $this)
+            $relation = $this.workbook.part.GetRelationship($ref.id)
+            $link = [XLSXExternalLink]::new($relation, $this)
             $this.XLSXExternalLinks.Add($link)
         }
 
